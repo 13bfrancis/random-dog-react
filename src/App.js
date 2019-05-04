@@ -1,25 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+const DogImage = styled.img`
+  grid-column: 2 / 4;
+  width: 100%;
+  border: 1px solid black;
+`;
+
+const AppContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+`;
+
+const GetDogButton = styled.button`
+  padding: 1rem;
+  grid-column: 1 / -1;
+`;
 
 function App() {
+  const [randomPicture, setRandomPicture] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const getNewDog = () => {
+    setLoading(true);
+    fetch('https://random.dog/woof.json')
+      .then(res => {
+        return res.json();
+      })
+      .then(resJson => {
+        if (resJson.url.search(/\.png/) === -1) {
+          getNewDog();
+        } else {
+          setLoading(false);
+          setRandomPicture(resJson.url);
+        }
+      });
+    console.log('hello'.search('helo'));
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppContainer>
+      <GetDogButton onClick={getNewDog}>Get New Dog</GetDogButton>
+      {loading ? (
+        '...loading'
+      ) : (
+        <>
+          {randomPicture ? (
+            <DogImage src={randomPicture} alt="random dog" />
+          ) : (
+            <p>Click the button!!</p>
+          )}
+        </>
+      )}
+    </AppContainer>
   );
 }
 
